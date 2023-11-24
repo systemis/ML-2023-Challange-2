@@ -5,19 +5,17 @@ import math
 import tensorflow as tf
 import numpy as np
 
+import yfinance as yf
+
 app = Flask(__name__)
 
-import yfinance as yf
 yf.pdr_override()
-
 df = yf.download('BTC-USD', start='2014-01-01', end='2022-01-10', threads=False)     # or threads=True
-
 dataset = df.filter(['Close']).values
-training_data_len = math.ceil(len(dataset) * .8) # We are using %80 of the data for training
+training_data_len = math.ceil(len(dataset) * .8)
 
-
+# Load model from file model.keras
 model = tf.keras.models.load_model("model2.h5")
-# model.make_predict_function()
 
 scaler = MinMaxScaler(feature_range=(0,1))
 scaled_data = scaler.fit_transform(dataset)
@@ -41,21 +39,16 @@ def get_predictions():
     
     # Sample data (replace this with your actual data)
     data = df.filter(['Close'])
-    valid_2 = data[training_data_len:]
-    valid_2['Predictions'] = predictions_2
+    valid = data[training_data_len:]
+    valid['Predictions'] = predictions_2
     
     # Replace this with your actual data
     predictions_data = {
-        # 'valid_1': {
-        #     'close': valid_1['Close'].tolist(),
-        #     'predictions': valid_1['Predictions'].tolist()
-        # },
-        'valid_2': {
-            'close': valid_2['Close'].tolist(),
-            'predictions': valid_2['Predictions'].tolist()
-        }
+      'date': df.index.tolist()[training_data_len:],
+      'close': valid['Close'].tolist(),
+      'predictions': valid['Predictions'].tolist(),
     }
     return jsonify(predictions_data)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, port=8080)

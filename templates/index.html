@@ -3,40 +3,67 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Stock Predictions</title>
-    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <title>Bitcoin Price Chart</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   </head>
   <body>
-    <div id="chart"></div>
-
+    <canvas id="bitcoinChart" width="800" height="400"></canvas>
     <script>
-      document.addEventListener("DOMContentLoaded", function () {
-        // Fetch data from the API
-        fetch("/api/predictions")
-          .then((response) => response.json())
-          .then((data) => {
-            // Use the data to create a chart (replace this with your actual charting code)
-            const trace2 = {
-              x: data.valid_2.close,
-              y: data.valid_2.predictions,
-              type: "scatter",
-              mode: "lines+markers",
-              name: "Model 2 Predictions",
-            };
+      fetch("/api/predictions")
+        .then((response) => response.json())
+        .then((apiData) => {
+          // Use the data to create a chart (replace this with your actual charting code)
 
-            const layout = {
-              title: "Bitcoin price predictions",
-              xaxis: {
-                title: "Date",
-              },
-              yaxis: {
-                title: "Close Price USD",
-              },
-            };
+          // Extracting data
+          var dates = apiData.date;
+          var actualPrices = apiData.close;
+          var predictedPrices = apiData.predictions;
 
-            Plotly.newPlot("chart", [trace2], layout);
+          // Parsing dates with Moment.js
+          var parsedDates = dates.map(function (date) {
+            return moment(date);
           });
-      });
+
+          // Creating a chart
+          var ctx = document.getElementById("bitcoinChart").getContext("2d");
+          var bitcoinChart = new Chart(ctx, {
+            type: "line",
+            data: {
+              labels: parsedDates,
+              datasets: [
+                {
+                  label: "Actual Price",
+                  borderColor: "rgba(75, 192, 192, 1)",
+                  data: actualPrices,
+                  fill: false,
+                },
+                {
+                  label: "Predicted Price",
+                  borderColor: "rgba(255, 99, 132, 1)",
+                  data: predictedPrices,
+                  fill: false,
+                },
+              ],
+            },
+            options: {
+              scales: {
+                x: {
+                  title: {
+                    display: true,
+                    text: "Date",
+                  },
+                },
+                y: {
+                  title: {
+                    display: true,
+                    text: "Price (USD)",
+                  },
+                },
+              },
+            },
+          });
+        });
     </script>
   </body>
 </html>
