@@ -1,0 +1,10 @@
+cloud
+sun
+pants
+umbrella
+table
+ladder
+eyeglasses
+clock
+scissors
+cup

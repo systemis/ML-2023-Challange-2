@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Stock Predictions</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  </head>
+  <body>
+    <div id="chart"></div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        // Fetch data from the API
+        fetch("/api/predictions")
+          .then((response) => response.json())
+          .then((data) => {
+            // Use the data to create a chart (replace this with your actual charting code)
+            const trace2 = {
+              x: data.valid_2.close,
+              y: data.valid_2.predictions,
+              type: "scatter",
+              mode: "lines+markers",
+              name: "Model 2 Predictions",
+            };
+
+            const layout = {
+              title: "Bitcoin price predictions",
+              xaxis: {
+                title: "Date",
+              },
+              yaxis: {
+                title: "Close Price USD",
+              },
+            };
+
+            Plotly.newPlot("chart", [trace2], layout);
+          });
+      });
+    </script>
+  </body>
+</html>
